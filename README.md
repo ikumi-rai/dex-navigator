@@ -1,4 +1,4 @@
-# Dex Navigator for bb low-cap community
+# Dex Navigator for bb✈ low-cap community
 ## 概要
 何らかのサイトでトークンページを開いている際にコンテキストメニューから移動したいサイトを選択するとそのサイトで**同じトークンの**ページを開くことができます  
 ![dex_screener](docs/dex_screener.png)

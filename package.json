@@ -1,0 +1,16 @@
+{
+  "name": "dex-navigator",
+  "version": "1.0.0",
+  "description": "Add links to various DEXs and platforms in the context menu.",
+  "author": "ikumi-rai",
+  "license": "MIT",
+  "volta": {
+    "node": "22.12.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.18.0",
+    "eslint": "^9.18.0",
+    "globals": "^15.14.0",
+    "prettier": "^3.4.2"
+  }
+}

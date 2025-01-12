@@ -1,12 +1,13 @@
 /*global chrome*/
 
 /**
+ * MEMO:
  * https://developer.chrome.com/docs/extensions/develop/migrate/to-service-workers?hl=ja
  * Manifest V3からの仕様であるService Workerは一定時間で停止してしまうため
  * - コンテキストメニューを登録する処理
  * - コンテキストメニューがクリックされた際の処理
- * の間でデータを共有することができない(前者と後者の間でService Workerが停止しデータが破棄されるため)。
- * よってAppおよびappsは両方で定義する必要がある。
+ * の間でデータを共有することができない(前者と後者の間でService Workerが停止し変数が破棄されるため)。
+ * また動的importやContent scriptsのmodule化も禁止されているので諦めてAppとappsを両方で定義している。
  */
 
 chrome.runtime.onInstalled.addListener(() => {
@@ -46,40 +47,44 @@ chrome.runtime.onInstalled.addListener(() => {
 })
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
-  /**
-   * @param {string} id コンテキストメニュー項目に付与されるID
-   * @param {string} name メニューの表示名
-   * @param {string} url メニューを表示するサイトのURL(指定のないサイトを開いている時はメニューにDex Navigatorが表示されない)
-   */
-  const App = (id, name, url) => {
-    return { id, name, url }
-  }
+  const navigate = (from, to) => {
+    /**
+     * @param {string} id コンテキストメニュー項目に付与されるID
+     * @param {string} name メニューの表示名
+     * @param {string} url メニューを表示するサイトのURL(指定のないサイトを開いている時はメニューにDex Navigatorが表示されない)
+     */
+    const App = (id, name, url) => {
+      return { id, name, url }
+    }
 
-  const apps = {
-    DexScreener: App("dex_screener", "DEX Screener", "https://dexscreener.com/solana/"),
-    GMGN: App("gmgn", "GMGN", "https://gmgn.ai/sol/token/"),
-    ApePro: App("ape_pro", "Ape Pro", "https://ape.pro/solana/"),
-    Photon: App("photon", "Photon", "https://photon-sol.tinyastro.io/en/lp/"),
-    PumpFun: App("pump_fun", "Pump Fun", "https://pump.fun/coin/"),
-    RaydiumSOL: App("raydium_sol", "Raydium - SOL", "https://raydium.io/"),
-    RaydiumUSDC: App("raydium_usdc", "Raydium - USDC", "https://raydium.io/"),
-    JupiterSOL: App("jupiter_sol", "Jupiter - SOL", "https://jup.ag/"),
-    JupiterUSDC: App("jupiter_usdc", "Jupiter - USDC", "https://jup.ag/"),
-  }
+    const apps = {
+      DexScreener: App("dex_screener", "DEX Screener", "https://dexscreener.com/solana/"),
+      GMGN: App("gmgn", "GMGN", "https://gmgn.ai/sol/token/"),
+      ApePro: App("ape_pro", "Ape Pro", "https://ape.pro/solana/"),
+      Photon: App("photon", "Photon", "https://photon-sol.tinyastro.io/en/lp/"),
+      PumpFun: App("pump_fun", "Pump Fun", "https://pump.fun/coin/"),
+      RaydiumSOL: App("raydium_sol", "Raydium - SOL", "https://raydium.io/"),
+      RaydiumUSDC: App("raydium_usdc", "Raydium - USDC", "https://raydium.io/"),
+      JupiterSOL: App("jupiter_sol", "Jupiter - SOL", "https://jup.ag/"),
+      JupiterUSDC: App("jupiter_usdc", "Jupiter - USDC", "https://jup.ag/"),
+    }
 
-  const navigate = (from, to, apps) => {
+    const USDC_CA = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+    const SOL_CA = "So11111111111111111111111111111111111111112"
+
+    const getElementByXPath = (path) => {
+      return document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null)
+        .singleNodeValue
+    }
+
+    const Url = (url) => {
+      return URL.parse(url)
+    }
+
     // コンテキストメニュー全体に対するイベントリスナーなので他のメニューに配慮して早めに抜ける
     if (!URL.canParse(from)) return
     const targets = Object.values(apps).map((app) => app.id)
     if (!targets.includes(to)) return
-
-    // 色々定義
-    const USDC_CA = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
-    const SOL_CA = "So11111111111111111111111111111111111111112"
-    const getElementByXPath = (path) =>
-      document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null)
-        .singleNodeValue
-    const Url = (url) => URL.parse(url)
 
     // 今開いているページからコントラクトアドレスを取得
     let ca = ""
@@ -166,6 +171,6 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   chrome.scripting.executeScript({
     target: { tabId: tab.id },
     func: navigate,
-    args: [info.pageUrl, info.menuItemId, apps],
+    args: [info.pageUrl, info.menuItemId],
   })
 })

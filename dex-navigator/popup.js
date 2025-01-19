@@ -51,6 +51,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     button.id = app.id
     button.textContent = app.name
     button.addEventListener("click", navigate)
+    const img = document.createElement("img")
+    img.src = `images/${app.id}.png`
+    button.prepend(img)
     buttonArea.append(button)
   })
 

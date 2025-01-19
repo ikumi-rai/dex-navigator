@@ -3,36 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <title>Dex Navigator</title>
+  <link rel="stylesheet" href="popup.css">
   <script src="popup.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 16px;
-      line-height: 1.2;
-    }
-    h2 {
-      text-align: center;
-    }
-    div {
-      margin-top: 16px;
-    }
-    #button-area button {
-      display: block;
-      width: 100%;
-      padding: 4px;
-      margin: 6px 0;
-      cursor: pointer;
-    }
-  </style>
 </head>
 <body>
-  <h2>Dex Navigator</h2>
-  <div>
-    <label>
-      Clipboard:
-      <input id="clipboard-content" name="clipboard-content" type="text" value="Loading..." readonly/>
-    </label>
-  </div>
+  <h1><img src="images/icon32.png"/>DEX Navigator</h1>
+  <input id="clipboard-content" name="clipboard-content" type="text" value="Loading..." readonly/>
   <div id="button-area"></div>
 </body>
 </html>

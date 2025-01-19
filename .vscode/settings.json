@@ -5,4 +5,11 @@
         "editor.formatOnType": true,
         "editor.formatOnPaste": true,
     },
+    "stylelint.validate": ["css"],
+    "[css]": {
+        "editor.formatOnSave": false,
+        "editor.codeActionsOnSave": {
+            "source.fixAll.stylelint": "explicit"
+        }
+    }
 }

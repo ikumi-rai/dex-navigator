@@ -1,41 +1,74 @@
-import { apps } from "./core.js"
+import { apps, SELECTION_MENU_ITEM_SUFFIX } from "./core.js"
 
 /*global chrome*/
 
-// 拡張機能の登録/更新時にコンテキストメニューを追加
+/**
+ * コンテキストメニューを追加する条件は
+ * appsに含まれるURLを開いている状態 or テキストを選択した状態
+ */
 chrome.runtime.onInstalled.addListener(() => {
-  const createMenuItem = (id, title, parent) => {
-    const options = {
-      id,
-      title,
-      documentUrlPatterns: [...new Set(Object.values(apps).map((app) => app.url + "*"))],
+  const createMenuItem = (optionalParams) => {
+    return (id, title) => {
+      return chrome.contextMenus.create({
+        id,
+        title,
+        ...optionalParams,
+      })
     }
-    if (parent) options.parentId = parent
-    return chrome.contextMenus.create(options)
   }
 
-  const parent = createMenuItem("dex_navigator", "Dex Navigator")
-  Object.values(apps).forEach((app) => createMenuItem(app.id, app.name, parent))
+  // appsに含まれるURLを開いている状態のコンテキストメニュー
+  const allUrlPatterns = [...new Set(Object.values(apps).map((app) => app.url + "*"))]
+  const createTargetPageMenuItem = createMenuItem({ documentUrlPatterns: allUrlPatterns })
+  const TargetPageParentMenu = createTargetPageMenuItem("dex_navigator", "Dex Navigator")
+  const createTargetPageChildMenuItem = createMenuItem({
+    documentUrlPatterns: allUrlPatterns,
+    parentId: TargetPageParentMenu,
+  })
+
+  // テキストを選択した状態のコンテキストメニュー
+  const contexts = ["selection"]
+  const createSelectionMenuItem = createMenuItem({ contexts })
+  const selectionParentMenu = createSelectionMenuItem(
+    "dex_navigator" + SELECTION_MENU_ITEM_SUFFIX,
+    "Dex Navigator",
+  )
+  const createSelectionChildMenuItem = createMenuItem({
+    contexts,
+    parentId: selectionParentMenu,
+  })
+
+  // それぞれのメニューに子メニューを追加
+  Object.values(apps).forEach((app) => {
+    createTargetPageChildMenuItem(app.id, app.name)
+    createSelectionChildMenuItem(app.id + SELECTION_MENU_ITEM_SUFFIX, app.name)
+  })
 })
 
-// コンテキストメニューをクリックした際の動作を登録
+/**
+ * コンテキストメニューをクリックした際の動作の登録
+ * Service Workerが停止しているのでcore.jsは再度読み込む必要がある
+ */
 chrome.contextMenus.onClicked.addListener((info, tab) => {
-  const navigate = async (from, to) => {
+  const navigate = async (pageUrl, menuItemId) => {
     const core = await import(chrome.runtime.getURL("core.js"))
-    const { apps, getCaFromUi } = core
+    const { apps, getCaFromUi, SELECTION_MENU_ITEM_SUFFIX } = core
+
+    const isSelectionMenu = menuItemId.endsWith(SELECTION_MENU_ITEM_SUFFIX)
+    const appId = isSelectionMenu
+      ? menuItemId.slice(0, -SELECTION_MENU_ITEM_SUFFIX.length)
+      : menuItemId
 
     // コンテキストメニュー全体に対するイベントリスナーなので他のメニューに配慮して早めに抜ける
-    if (!URL.canParse(from)) return
-    const allId = Object.keys(apps)
-    if (!allId.includes(to)) return
+    const allIds = Object.keys(apps)
+    if (!allIds.includes(appId)) return
 
-    // 今開いているページからコントラクトアドレスを取得
-    const ca = getCaFromUi(from)
+    const ca = isSelectionMenu ? window.getSelection().toString().trim() : getCaFromUi(pageUrl)
     if (!ca) return
     console.info(`[Dex Navigator] CA: ${ca}`)
 
     // 新しいタブで開く
-    open(apps[to].createTokenPageUrl(ca))
+    open(apps[appId].createTokenPageUrl(ca))
   }
 
   chrome.scripting.executeScript({

@@ -1,6 +1,8 @@
 export const USDC_CA = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
 export const SOL_CA = "So11111111111111111111111111111111111111112"
 
+export const SELECTION_MENU_ITEM_SUFFIX = "_selection"
+
 /**
  * @param {string} id UI(コンテキストメニュー項目とポップアップのボタン)に付与されるID
  * @param {string} name UIに表示される名前
@@ -61,6 +63,7 @@ const Url = (url) => {
  * @returns {string | undefined}
  */
 export const getCaFromUi = (url) => {
+  if (!URL.canParse(url)) return
   try {
     switch (Url(url).origin) {
       // DEX Screener

@@ -22,6 +22,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   window.addEventListener("focus", async () => {
     const cbTextBox = document.getElementById("clipboard_content")
     const cbContent = await navigator.clipboard.readText()
-    cbTextBox.value = cbContent || "Clipboard content is not text."
+    cbTextBox.value = cbContent.trim() || "Clipboard content is not text."
   })
 })

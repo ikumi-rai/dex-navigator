@@ -99,8 +99,12 @@ export const getCaFromUi = (url) => {
       }
       // Jupiter
       case Url(apps.jupiter_sol.url).origin: {
-        const apeProBtn = getElementByXPath(".//a[starts-with(@href,'https://ape.pro/solana')]")
-        return Url(apeProBtn.getAttribute("href")).pathname.split("/").pop()
+        const apeProBtnPath = ".//a[starts-with(@href,'https://ape.pro/solana')]"
+        const apeProBtn1 = getElementByXPath(`(${apeProBtnPath})[1]`)
+        const apeProBtn2 = getElementByXPath(`(${apeProBtnPath})[2]`)
+        const ca1 = Url(apeProBtn1.getAttribute("href")).pathname.split("/").pop()
+        const ca2 = Url(apeProBtn2.getAttribute("href")).pathname.split("/").pop()
+        return [USDC_CA, SOL_CA].includes(ca1) ? ca2 : ca1
       }
       default:
         return

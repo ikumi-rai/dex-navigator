@@ -3,12 +3,11 @@ import { apps } from "./core.js"
 document.addEventListener("DOMContentLoaded", async () => {
   const navigate = (event) => {
     const buttonId = event.target.id
-    const ca = document.getElementById("clipboard_content").value
+    const ca = document.getElementById("clipboard-content").value
     open(apps[buttonId].createTokenPageUrl(ca))
   }
 
-  const buttonArea = document.getElementById("button-area")
-  Object.values(apps).forEach((app) => {
+  const createButtonElm = (app) => {
     const button = document.createElement("button")
     button.id = app.id
     button.textContent = app.name
@@ -16,11 +15,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     const img = document.createElement("img")
     img.src = `images/${app.id}.png`
     button.prepend(img)
-    buttonArea.append(button)
-  })
+    return button
+  }
+
+  const buttonArea = document.getElementById("button-area")
+  Object.values(apps).forEach((app) => buttonArea.append(createButtonElm(app)))
 
   window.addEventListener("focus", async () => {
-    const cbTextBox = document.getElementById("clipboard_content")
+    const cbTextBox = document.getElementById("clipboard-content")
     const cbContent = await navigator.clipboard.readText()
     cbTextBox.value = cbContent.trim() || "Clipboard content is not text."
   })

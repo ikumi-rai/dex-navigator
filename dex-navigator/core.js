@@ -18,7 +18,10 @@ const App = (id, name, url, path) => {
   }
 }
 
-export const apps = {
+/**
+ * @type {{ [key: string]: ReturnType<typeof App> }}
+ */
+const apps = {
   dex_screener: App("dex_screener", "DEX Screener", "https://dexscreener.com/solana/"),
   gmgn: App("gmgn", "GMGN", "https://gmgn.ai/sol/token/"),
   ape_pro: App("ape_pro", "Ape Pro", "https://ape.pro/solana/"),
@@ -38,6 +41,16 @@ export const apps = {
   ),
   jupiter_sol: App("jupiter_sol", "Jupiter - SOL", "https://jup.ag/", (ca) => `swap/SOL-${ca}`),
   jupiter_usdc: App("jupiter_usdc", "Jupiter - USDC", "https://jup.ag/", (ca) => `swap/USDC-${ca}`),
+}
+
+/**
+ * 全アプリケーションの中から指定されたidのものだけを含んだオブジェクトを返す
+ * @param {string[] | undefined} ids
+ */
+export const getApps = (ids) => {
+  return ids && ids.length > 0
+    ? Object.fromEntries(ids.filter((id) => apps[id]).map((id) => [id, apps[id]]))
+    : apps
 }
 
 /**
@@ -110,7 +123,7 @@ export const getCaFromUi = (url) => {
         return
     }
   } catch {
-    console.error("[Dex Navigator] Error has occurred.")
+    console.warn("[Dex Navigator] Failed to get CA from UI.")
     return
   }
 }

@@ -12,7 +12,8 @@
     "scripting",
     "activeTab",
     "contextMenus",
-    "clipboardRead"
+    "clipboardRead",
+    "storage"
   ],
   "background": {
     "service_worker": "service_worker.js",
@@ -20,7 +21,7 @@
   },
   "web_accessible_resources": [{
     "matches": ["<all_urls>"],
-    "resources": ["core.js"]
+    "resources": ["core.js", "context_menu.js"]
   }],
   "action": {
     "default_popup": "popup.html"

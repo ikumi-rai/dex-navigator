@@ -1,5 +1,5 @@
-import { getApps } from "./core.js"
-import { setContextMenu } from "./context_menu.js"
+import { getApps } from "../core.js"
+import { setContextMenu } from "../context_menu.js"
 
 document.addEventListener("DOMContentLoaded", async () => {
   // クリップボードの中身を取得してテキストボックスに入力
@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     button.textContent = app.name
     button.addEventListener("click", navigate)
     const img = document.createElement("img")
-    img.src = `images/${app.id}.png`
+    img.src = `../images/${app.id}.png`
     button.prepend(img)
     buttonArea.append(button)
   })

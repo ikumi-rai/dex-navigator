@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     return button
   }
 
-  const buttonArea = document.getElementById("button-area")
+  const buttonArea = document.getElementById("navigation-area")
   Object.values(apps).forEach((app) => buttonArea.append(createButtonElm(app)))
 
   window.addEventListener("focus", async () => {

@@ -15,10 +15,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // 各サイトに移動するボタンをメイン画面に配置
   const buttonArea = document.getElementById("navigation-area")
-  const navigate = (event) => {
+  const navigate = async (event) => {
     const buttonId = event.target.id
     const ca = document.getElementById("clipboard-content").value
-    open(apps[buttonId].createTokenPageUrl(ca))
+    open(await apps[buttonId].createTokenPageUrl(ca))
   }
   Object.values(apps).forEach((app) => {
     const button = document.createElement("button")

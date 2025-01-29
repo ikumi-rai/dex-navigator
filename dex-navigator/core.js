@@ -8,14 +8,14 @@ export const STORAGE_KEY_SETTINGS = "settings"
  * @param {string} id UI(コンテキストメニュー項目とポップアップのボタン)に付与されるID
  * @param {string} name UIに表示される名前
  * @param {string} url トークンページからパスを1つ削ったURL
- * @param {(ca: string) => string} path トークンページのURLを組み立てる際にCAを加工する関数
+ * @param {async (ca: string) => string} path トークンページのURLを組み立てる際にCAを加工する関数
  */
 const App = (id, name, url, path) => {
   return {
     id,
     name,
     url,
-    createTokenPageUrl: (ca) => url + (path ? path(ca) : ca),
+    createTokenPageUrl: async (ca) => url + (path ? await path(ca) : ca),
   }
 }
 
@@ -28,18 +28,12 @@ const apps = {
   ape_pro: App("ape_pro", "Ape Pro", "https://ape.pro/solana/"),
   photon: App("photon", "Photon", "https://photon-sol.tinyastro.io/en/lp/"),
   pump_fun: App("pump_fun", "Pump Fun", "https://pump.fun/coin/"),
-  raydium_sol: App(
-    "raydium_sol",
-    "Raydium - SOL",
-    "https://raydium.io/",
-    (ca) => `swap/?inputMint=sol&outputMint=${ca}`,
-  ),
-  raydium_usdc: App(
-    "raydium_usdc",
-    "Raydium - USDC",
-    "https://raydium.io/",
-    (ca) => `swap/?inputMint=${USDC_CA}&outputMint=${ca}`,
-  ),
+  raydium_sol: App("raydium_sol", "Raydium - SOL", "https://raydium.io/", (ca) => {
+    return `swap/?inputMint=sol&outputMint=${ca}`
+  }),
+  raydium_usdc: App("raydium_usdc", "Raydium - USDC", "https://raydium.io/", (ca) => {
+    return `swap/?inputMint=${USDC_CA}&outputMint=${ca}`
+  }),
   jupiter_sol: App("jupiter_sol", "Jupiter - SOL", "https://jup.ag/", (ca) => `swap/SOL-${ca}`),
   jupiter_usdc: App("jupiter_usdc", "Jupiter - USDC", "https://jup.ag/", (ca) => `swap/USDC-${ca}`),
 }

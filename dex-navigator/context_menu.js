@@ -73,7 +73,7 @@ export const navigate = async (pageUrl, menuItemId) => {
   console.info(`[Dex Navigator] CA: ${ca}`)
 
   // 新しいタブで開く
-  open(allApps[appId].createTokenPageUrl(ca))
+  open(await allApps[appId].createTokenPageUrl(ca))
 }
 
 /**

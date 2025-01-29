@@ -1,4 +1,4 @@
-# Dex Navigator for bb✈ low-cap community
+# Dex Navigator for bb✈ deep divers guild
 ## 概要
 - トークンページから他のサイトの**同じトークンページ**に移動します。  
 ![token_page](docs/token_page.png)  

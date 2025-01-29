@@ -36,6 +36,12 @@ const apps = {
   }),
   jupiter_sol: App("jupiter_sol", "Jupiter - SOL", "https://jup.ag/", (ca) => `swap/SOL-${ca}`),
   jupiter_usdc: App("jupiter_usdc", "Jupiter - USDC", "https://jup.ag/", (ca) => `swap/USDC-${ca}`),
+  sol_scan: App("sol_scan", "Solscan", "https://solscan.io/token/"),
+  dex_tools: App("dex_tools", "DEXTools", "https://www.dextools.io/app/en/solana/pair-explorer/"),
+  twitter_ca: App("twitter_ca", "Twitter - CA", "https://x.com/search?", (ca) => `q=${ca}`),
+  twitter_ticker: App("twitter_ticker", "Twitter - Ticker", "https://x.com/search?", async (ca) => {
+    return `q=${encodeURIComponent("$")}${await getTickerFromCa(ca)}`
+  }),
 }
 
 /**
@@ -46,6 +52,20 @@ export const getApps = (ids) => {
   return ids && ids.length > 0
     ? Object.fromEntries(ids.filter((id) => apps[id]).map((id) => [id, apps[id]]))
     : apps
+}
+
+/**
+ * @param {string} ca
+ * @returns {Promise<string | undefined>}
+ */
+const getTickerFromCa = async (ca) => {
+  try {
+    const res = await fetch(`https://api-v3.raydium.io/mint/ids?mints=${ca}`)
+    const body = await res.json()
+    return body.data[0].symbol
+  } catch {
+    return
+  }
 }
 
 /**
@@ -113,6 +133,20 @@ export const getCaFromUi = (url) => {
         const ca1 = Url(apeProBtn1.getAttribute("href")).pathname.split("/").pop()
         const ca2 = Url(apeProBtn2.getAttribute("href")).pathname.split("/").pop()
         return [USDC_CA, SOL_CA].includes(ca1) ? ca2 : ca1
+      }
+      // Solscan
+      case Url(apps.sol_scan.url).origin: {
+        return Url(url).pathname.split("/").pop()
+      }
+      // DEXTools
+      case Url(apps.dex_tools.url).origin: {
+        const solScanBtn = getElementByXPath(".//a[starts-with(@href,'https://solscan.io/token')]")
+        return Url(solScanBtn.getAttribute("href")).pathname.split("/").pop()
+      }
+      // Twitter
+      case Url(apps.twitter_ca.url).origin: {
+        const queryParams = Url(url).searchParams
+        return decodeURIComponent(queryParams.get("q"))
       }
       default:
         return

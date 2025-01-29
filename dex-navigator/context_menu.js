@@ -1,4 +1,4 @@
-import { getApps, getCaFromUi, SELECTION_MENU_ITEM_SUFFIX } from "./core.js"
+import { getApps, getCaFromUi, STORAGE_KEY_SETTINGS, SELECTION_MENU_ITEM_SUFFIX } from "./core.js"
 
 /**
  * chrome.contextMenus.create()のカリー化
@@ -18,7 +18,7 @@ const createMenuItem = (optionalParams) => {
  * のコンテキストメニューにDEX Navigatorを追加する
  */
 export const setContextMenu = async () => {
-  const settings = (await chrome.storage.local.get("settings")).settings
+  const settings = (await chrome.storage.local.get(STORAGE_KEY_SETTINGS))[STORAGE_KEY_SETTINGS]
   const allApps = getApps()
   const selectedApps = getApps(settings)
 

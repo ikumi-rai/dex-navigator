@@ -2,6 +2,7 @@ export const USDC_CA = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
 export const SOL_CA = "So11111111111111111111111111111111111111112"
 
 export const SELECTION_MENU_ITEM_SUFFIX = "_selection"
+export const STORAGE_KEY_SETTINGS = "settings"
 
 /**
  * @param {string} id UI(コンテキストメニュー項目とポップアップのボタン)に付与されるID

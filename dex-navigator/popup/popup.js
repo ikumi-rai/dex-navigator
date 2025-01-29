@@ -1,4 +1,4 @@
-import { getApps } from "../core.js"
+import { getApps, STORAGE_KEY_SETTINGS } from "../core.js"
 import { setContextMenu } from "../context_menu.js"
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     cbTextBox.value = cbContent.trim() || "Clipboard content is not text."
   })
 
-  const settings = (await chrome.storage.local.get("settings")).settings
+  const settings = (await chrome.storage.local.get(STORAGE_KEY_SETTINGS))[STORAGE_KEY_SETTINGS]
   const apps = getApps(settings)
 
   // 各サイトに移動するボタンをメイン画面に配置
@@ -41,13 +41,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     modal.classList.add("visible")
   })
   document.getElementById("save-btn").addEventListener("click", () => {
-    const newSettings = settingsTextBox.value
-      .split("\n")
-      .filter((stg) => stg)
-      .map((stg) => stg.trim())
-    chrome.storage.local.set({ settings: newSettings })
+    const newSettings = [
+      ...new Set(
+        settingsTextBox.value
+          .split("\n")
+          .filter((stg) => stg)
+          .map((stg) => stg.trim()),
+      ),
+    ] // 行で分割 → 空行削除 → 空白削除 → 重複削除
+    if (newSettings.length && newSettings.join() !== Object.keys(getApps()).join()) {
+      chrome.storage.local.set({ [STORAGE_KEY_SETTINGS]: newSettings })
+    } else {
+      chrome.storage.local.remove(STORAGE_KEY_SETTINGS)
+    }
     settingsTextBox.value = newSettings.join("\n")
-    chrome.contextMenus.removeAll(setContextMenu)
+    chrome.contextMenus.removeAll().then(setContextMenu)
     modal.classList.remove("visible")
   })
   document.getElementById("back-btn").addEventListener("click", () => {

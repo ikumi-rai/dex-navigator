@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Dex Navigator",
-  "version": "1.1.0",
+  "version": "1.2.1",
   "description": "Add links to various DEXs and platforms in the context menu.",
   "icons": {
     "16": "images/icon16.png",

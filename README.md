@@ -44,4 +44,5 @@ sol_scan
 dex_tools
 twitter_ca
 twitter_ticker
+vector
 ```

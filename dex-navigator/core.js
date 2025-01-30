@@ -130,6 +130,10 @@ const apps = [
   App("twitter_ticker", "Twitter - Ticker", "https://x.com/search?",
     async (ca) => `q=${encodeURIComponent("$")}${await getTickerFromCa(ca)}`,
   ),
+  // Vector
+  App("vector", "Vector", "https://vec.fun/token/SOLANA:",
+    (ca) => `${ca}?ref=takmolts`,
+  )
 ]
 
 /**

@@ -1,4 +1,4 @@
-import { getApps, STORAGE_KEY_SETTINGS } from "../core.js"
+import { getAppFromId, idList, operateSettings } from "../core.js"
 import { setContextMenu } from "../context_menu.js"
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -10,17 +10,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     cbTextBox.value = cbContent.trim() || "Clipboard content is not text."
   })
 
-  const settings = (await chrome.storage.local.get(STORAGE_KEY_SETTINGS))[STORAGE_KEY_SETTINGS]
-  const apps = getApps(settings)
+  const settings = await operateSettings("get")
+  const apps = getAppFromId(settings)
 
   // 各サイトに移動するボタンをメイン画面に配置
   const buttonArea = document.getElementById("navigation-area")
   const navigate = async (event) => {
     const buttonId = event.target.id
     const ca = document.getElementById("clipboard-content").value
-    open(await apps[buttonId].createTokenPageUrl(ca))
+    open(await getAppFromId(buttonId).createTokenPageUrl(ca))
   }
-  Object.values(apps).forEach((app) => {
+  apps.forEach((app) => {
     const button = document.createElement("button")
     button.id = app.id
     button.textContent = app.name
@@ -33,14 +33,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // 設定画面に関するスクリプト等を設定
   const settingsTextBox = document.getElementById("settings")
-  settingsTextBox.value = Object.keys(apps).join("\n")
+  settingsTextBox.value = apps.map((app) => app.id).join("\n")
   const modal = document.getElementById("modal")
   let temporarySettings = ""
   document.getElementById("settings-btn").addEventListener("click", () => {
     temporarySettings = settingsTextBox.value
     modal.classList.add("visible")
   })
-  document.getElementById("save-btn").addEventListener("click", () => {
+  document.getElementById("save-btn").addEventListener("click", async () => {
     const newSettings = [
       ...new Set(
         settingsTextBox.value
@@ -49,11 +49,10 @@ document.addEventListener("DOMContentLoaded", async () => {
           .map((stg) => stg.trim()),
       ),
     ] // 行で分割 → 空行削除 → 空白削除 → 重複削除
-    if (newSettings.length && newSettings.join() !== Object.keys(getApps()).join()) {
-      chrome.storage.local.set({ [STORAGE_KEY_SETTINGS]: newSettings })
-    } else {
-      chrome.storage.local.remove(STORAGE_KEY_SETTINGS)
-    }
+    await operateSettings(
+      newSettings.length && newSettings.join() !== idList().join() ? "set" : "remove",
+      newSettings,
+    )
     settingsTextBox.value = newSettings.join("\n")
     chrome.contextMenus.removeAll().then(setContextMenu)
     modal.classList.remove("visible")

@@ -1,4 +1,6 @@
-import { getApps, getCaFromUi, STORAGE_KEY_SETTINGS, SELECTION_MENU_ITEM_SUFFIX } from "./core.js"
+import { getAppFromId, getAppFromUrl, idList, urlList, operateSettings } from "./core.js"
+
+const SELECTION_MENU_ITEM_SUFFIX = "_selection"
 
 /**
  * chrome.contextMenus.create()のカリー化
@@ -18,12 +20,11 @@ const createMenuItem = (optionalParams) => {
  * のコンテキストメニューにDEX Navigatorを追加する
  */
 export const setContextMenu = async () => {
-  const settings = (await chrome.storage.local.get(STORAGE_KEY_SETTINGS))[STORAGE_KEY_SETTINGS]
-  const allApps = getApps()
-  const selectedApps = getApps(settings)
+  const settings = await operateSettings("get")
+  const selectedApps = getAppFromId(settings)
 
   // appsに含まれるURLを開いている状態のコンテキストメニュー
-  const allUrlPatterns = [...new Set(Object.values(allApps).map((app) => app.url + "*"))]
+  const allUrlPatterns = urlList().map((url) => url + "*")
   const createTargetPageMenuItem = createMenuItem({ documentUrlPatterns: allUrlPatterns })
   const TargetPageParentMenu = createTargetPageMenuItem("dex_navigator", "Dex Navigator")
   const createTargetPageChildMenuItem = createMenuItem({
@@ -44,7 +45,7 @@ export const setContextMenu = async () => {
   })
 
   // それぞれのメニューに子メニューを追加
-  Object.values(selectedApps).forEach((app) => {
+  selectedApps.forEach((app) => {
     createTargetPageChildMenuItem(app.id, app.name)
     createSelectionChildMenuItem(app.id + SELECTION_MENU_ITEM_SUFFIX, app.name)
   })
@@ -57,23 +58,22 @@ export const setContextMenu = async () => {
  * @returns {void}
  */
 export const navigate = async (pageUrl, menuItemId) => {
-  const allApps = getApps()
-
   const isSelectionMenu = menuItemId.endsWith(SELECTION_MENU_ITEM_SUFFIX)
   const appId = isSelectionMenu
     ? menuItemId.slice(0, -SELECTION_MENU_ITEM_SUFFIX.length)
     : menuItemId
 
   // コンテキストメニュー全体に対するイベントリスナーなので他のメニューに配慮して早めに抜ける
-  const allIds = Object.keys(allApps)
-  if (!allIds.includes(appId)) return
+  if (!idList().includes(appId)) return
 
-  const ca = isSelectionMenu ? window.getSelection().toString().trim() : getCaFromUi(pageUrl)
+  const ca = isSelectionMenu
+    ? window.getSelection().toString().trim()
+    : getAppFromUrl(pageUrl).getCaFromUi(pageUrl)
   if (!ca) return
   console.info(`[Dex Navigator] CA: ${ca}`)
 
   // 新しいタブで開く
-  open(await allApps[appId].createTokenPageUrl(ca))
+  open(await getAppFromId(appId).createTokenPageUrl(ca))
 }
 
 /**

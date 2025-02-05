@@ -37,47 +37,47 @@ const App = (id, name, url, path, ca) => {
 // prettier-ignore
 const apps = [
   // DEX Screener
-  App("dex_screener", "DEX Screener", "https://dexscreener.com/solana/",
-    undefined,
+  App("dex_screener", "DEX Screener", "https://dexscreener.com",
+    (ca) => `/solana/${ca}`,
     () => {
       const solScanBtn = getElementByXPath(".//a[starts-with(@href,'https://solscan.io/token')]")
       return Url(solScanBtn.getAttribute("href")).pathname.split("/").pop()
     }
   ),
   // GMGN
-  App("gmgn", "GMGN", "https://gmgn.ai/sol/token/",
-    undefined,
+  App("gmgn", "GMGN", "https://gmgn.ai",
+    (ca) => `/sol/token/${ca}`,
     () => {
       const solScanBtn = getElementByXPath(".//a[starts-with(@href,'https://solscan.io/token')]")
       return Url(solScanBtn.getAttribute("href")).pathname.split("/").pop()
     }
   ),
   // Ape Pro
-  App("ape_pro", "Ape Pro", "https://ape.pro/solana/",
-    undefined,
+  App("ape_pro", "Ape Pro", "https://ape.pro",
+    (ca) => `/solana/${ca}`,
     () => {
       const twitterBtn = getElementByXPath(".//a[starts-with(@href,'https://x.com/search')]")
       return Url(twitterBtn.getAttribute("href")).searchParams.get("q")
     }
   ),
   // Photon
-  App("photon", "Photon", "https://photon-sol.tinyastro.io/en/lp/",
-    undefined,
+  App("photon", "Photon", "https://photon-sol.tinyastro.io",
+    (ca) => `/en/lp/${ca}`,
     () => {
       const mainArea = getElementByXPath(".//div[@data-show-token-address]")
       return mainArea.getAttribute("data-show-token-address")
     }
   ),
   // Pump Fun
-  App("pump_fun", "Pump Fun", "https://pump.fun/coin/",
-    undefined,
+  App("pump_fun", "Pump Fun", "https://pump.fun",
+    (ca) => `/coin/${ca}`,
     (url) => {
       return Url(url).pathname.split("/").pop()
     }
   ),
   // Raydium
-  App("raydium_sol", "Raydium - SOL", "https://raydium.io/",
-    (ca) => `swap/?inputMint=sol&outputMint=${ca}`,
+  App("raydium_sol", "Raydium - SOL", "https://raydium.io",
+    (ca) => `/swap/?inputMint=sol&outputMint=${ca}`,
     (url) => {
       const queryParams = Url(url).searchParams
       const input = queryParams.get("inputMint")
@@ -85,13 +85,13 @@ const apps = [
       return [USDC_CA, SOL_CA, "sol"].includes(input) ? output : input
     },
   ),
-  App("raydium_usdc", "Raydium - USDC", "https://raydium.io/",
-    (ca) => `swap/?inputMint=${USDC_CA}&outputMint=${ca}`,
+  App("raydium_usdc", "Raydium - USDC", "https://raydium.io",
+    (ca) => `/swap/?inputMint=${USDC_CA}&outputMint=${ca}`,
     undefined
   ),
   // Jupiter
-  App("jupiter_sol", "Jupiter - SOL", "https://jup.ag/",
-    (ca) => `swap/SOL-${ca}`,
+  App("jupiter_sol", "Jupiter - SOL", "https://jup.ag",
+    (ca) => `/swap/SOL-${ca}`,
     () => {
       const apeProBtnPath = ".//a[starts-with(@href,'https://ape.pro/solana')]"
       const apeProBtn1 = getElementByXPath(`(${apeProBtnPath})[1]`)
@@ -101,38 +101,38 @@ const apps = [
       return [USDC_CA, SOL_CA].includes(ca1) ? ca2 : ca1
     },
   ),
-  App("jupiter_usdc", "Jupiter - USDC", "https://jup.ag/",
-    (ca) => `swap/USDC-${ca}`,
+  App("jupiter_usdc", "Jupiter - USDC", "https://jup.ag",
+    (ca) => `/swap/USDC-${ca}`,
   ),
   // Solscan
-  App("sol_scan", "Solscan", "https://solscan.io/token/",
-    undefined,
+  App("sol_scan", "Solscan", "https://solscan.io",
+    (ca) => `/token/${ca}`,
     (url) => {
       return Url(url).pathname.split("/").pop()
     }
   ),
   // DEXTools
-  App("dex_tools", "DEXTools", "https://www.dextools.io/app/en/solana/pair-explorer/",
-    undefined,
+  App("dex_tools", "DEXTools", "https://www.dextools.io",
+    (ca) => `/app/en/solana/pair-explorer/${ca}`,
     () => {
       const solScanBtn = getElementByXPath(".//a[starts-with(@href,'https://solscan.io/token')]")
       return Url(solScanBtn.getAttribute("href")).pathname.split("/").pop()
     },
   ),
   // Twitter
-  App("twitter_ca", "Twitter - CA", "https://x.com/search?",
-    (ca) => `q=${ca}`,
+  App("twitter_ca", "Twitter - CA", "https://x.com",
+    (ca) => `/search?q=${ca}`,
     (url) => {
       const queryParams = Url(url).searchParams
       return decodeURIComponent(queryParams.get("q"))
     },
   ),
-  App("twitter_ticker", "Twitter - Ticker", "https://x.com/search?",
-    async (ca) => `q=${encodeURIComponent("$")}${await getTickerFromCa(ca)}`,
+  App("twitter_ticker", "Twitter - Ticker", "https://x.com",
+    async (ca) => `/search?q=${encodeURIComponent("$")}${await getTickerFromCa(ca)}`,
   ),
   // Vector
-  App("vector", "Vector", "https://vec.fun/token/SOLANA:",
-    (ca) => `${ca}?ref=takmolts`,
+  App("vector", "Vector", "https://vec.fun",
+    (ca) => `/token/SOLANA:${ca}?ref=takmolts`,
   )
 ]
 
@@ -161,7 +161,7 @@ export const getAppFromId = (id) => {
  * @returns {ReturnType<typeof App>}
  */
 export const getAppFromUrl = (url) => {
-  return apps.filter((app) => Url(app.url).origin === Url(url).origin)[0]
+  return apps.filter((app) => app.url === Url(url).origin)[0]
 }
 
 /** ID一覧 */

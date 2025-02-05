@@ -24,7 +24,7 @@ export const setContextMenu = async () => {
   const selectedApps = getAppFromId(settings)
 
   // appsに含まれるURLを開いている状態のコンテキストメニュー
-  const allUrlPatterns = urlList().map((url) => url + "*")
+  const allUrlPatterns = urlList().map((url) => url + "/*")
   const createTargetPageMenuItem = createMenuItem({ documentUrlPatterns: allUrlPatterns })
   const TargetPageParentMenu = createTargetPageMenuItem("dex_navigator", "Dex Navigator")
   const createTargetPageChildMenuItem = createMenuItem({

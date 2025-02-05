@@ -8,7 +8,7 @@ export const setTradingViewCommand = () => {
     if (command !== "trading_view_high_price") return
     chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
       if (!tabs.length) return
-      if (!urlList().some((url) => tabs[0].url.startsWith(url))) return
+      if (!urlList().some((url) => URL.parse(tabs[0].url).origin === url)) return
 
       // windowを見るために関数をページのコンテキストで実行する必要があるが、その場合chrome.runtimeにはアクセスできないため全てこのスコープに書く
       const results = await chrome.scripting.executeScript({
